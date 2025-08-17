@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Filter Employees - Employee Management</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+  <style>
+    .filter-card {
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .result-card {
+      transition: transform 0.2s ease;
+    }
+    .result-card:hover {
+      transform: translateY(-2px);
+    }
+  </style>
+</head>
+<body class="bg-light">
+<div class="container py-4">
+  <!-- Page Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="fas fa-filter me-2"></i>Filter Employees</h1>
+    <a href="/" class="btn btn-dark">
+      <i class="fas fa-home me-1"></i> Dashboard
+    </a>
+  </div>
+  <hr>
+
+  <!-- Filter Form -->
+  <div class="card shadow-sm filter-card mb-5">
+    <div class="card-body p-4">
+      <form method="POST" action="/filter_emp/">
+        {% csrf_token %}
+        <div class="row">
+          <div class="col-md-4 mb-3">
+            <label for="name" class="form-label"><i class="fas fa-user me-1"></i> Name</label>
+            <input type="text" name="name" id="name" class="form-control" placeholder="First or last name">
+          </div>
+
+          <div class="col-md-4 mb-3">
+            <label for="position" class="form-label"><i class="fas fa-user-tie me-1"></i> Position</label>
+            <input type="text" name="position" id="position" class="form-control" placeholder="Position name">
+          </div>
+
+          <div class="col-md-4 mb-3">
+            <label for="hire_date" class="form-label"><i class="fas fa-calendar-alt me-1"></i> Hired After</label>
+            <input type="date" name="hire_date" id="hire_date" class="form-control">
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-end">
+          <button type="submit" class="btn btn-primary">
+            <i class="fas fa-search me-2"></i>Search
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Results Section -->
+  {% if emps %}
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h3><i class="fas fa-list-check me-2"></i>Results</h3>
+      <small class="text-muted">{{ emps|length }} employee(s) found</small>
+    </div>
+
+    <div class="row">
+      {% for emp in emps %}
+      <div class="col-md-6 mb-4">
+        <div class="card shadow-sm result-card h-100">
+          <div class="card-body">
+            <div class="d-flex justify-content-between">
+              <h5 class="card-title">
+                <i class="fas fa-user me-2"></i>{{ emp.first_name }} {{ emp.last_name }}
+              </h5>
+              <span class="badge bg-secondary">{{ emp.position }}</span>
+            </div>
+            <hr>
+            <div class="card-text">
+              <p class="mb-2"><i class="fas fa-envelope me-2"></i>{{ emp.email }}</p>
+              <p class="mb-2"><i class="fas fa-phone me-2"></i>{{ emp.phone }}</p>
+              <p class="mb-0"><i class="fas fa-calendar-day me-2"></i>Hired: {{ emp.hire_date }}</p>
+            </div>
+          </div>
+          <div class="card-footer bg-white">
+            <div class="d-flex justify-content-end">
+              <a href="/edit_emp/{{ emp.id }}" class="btn btn-sm btn-warning me-2">
+                <i class="fas fa-pen"></i> Edit
+              </a>
+              <a href="/remove_emp/{{ emp.id }}" class="btn btn-sm btn-danger">
+                <i class="fas fa-trash"></i> Remove
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  
+  {% elif request.method == "POST" %}
+    <div class="alert alert-info text-center py-4">
+      <i class="fas fa-info-circle fa-2x mb-3"></i>
+      <h4>No matching employees found</h4>
+      <p class="mb-0">Try adjusting your search criteria</p>
+    </div>
+  {% endif %}
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Set today's date minus 1 year as default for hire date
+    const oneYearAgo = new Date();
+    oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+    document.getElementById('hire_date').valueAsDate = oneYearAgo;
+  });
+</script>
+</body>
+</html>
